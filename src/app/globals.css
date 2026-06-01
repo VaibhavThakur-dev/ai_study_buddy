@@ -1,26 +1,254 @@
 @import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+@custom-variant dark (&:is(.dark *));
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-sans: "Architects Daughter", sans-serif;
+  --font-mono: "Fira Code", "Courier New", monospace;
+  --font-heading: var(--font-sans);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.6);
+  --font-serif: Georgia, serif;
+  --radius: 0.625rem;
+  --tracking-tighter: calc(var(--tracking-normal) - 0.05em);
+  --tracking-tight: calc(var(--tracking-normal) - 0.025em);
+  --tracking-wide: calc(var(--tracking-normal) + 0.025em);
+  --tracking-wider: calc(var(--tracking-normal) + 0.05em);
+  --tracking-widest: calc(var(--tracking-normal) + 0.1em);
+  --tracking-normal: var(--tracking-normal);
+  --shadow-2xl: var(--shadow-2xl);
+  --shadow-xl: var(--shadow-xl);
+  --shadow-lg: var(--shadow-lg);
+  --shadow-md: var(--shadow-md);
+  --shadow: var(--shadow);
+  --shadow-sm: var(--shadow-sm);
+  --shadow-xs: var(--shadow-xs);
+  --shadow-2xs: var(--shadow-2xs);
+  --spacing: var(--spacing);
+  --letter-spacing: var(--letter-spacing);
+  --shadow-offset-y: var(--shadow-offset-y);
+  --shadow-offset-x: var(--shadow-offset-x);
+  --shadow-spread: var(--shadow-spread);
+  --shadow-blur: var(--shadow-blur);
+  --shadow-opacity: var(--shadow-opacity);
+  --color-shadow-color: var(--shadow-color);
+  --color-destructive-foreground: var(--destructive-foreground);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+/* ============================================
+   LIGHT MODE — Dark Navy + Electric Blue
+   ============================================ */
+:root {
+  /* Base */
+  --background: oklch(0.97 0.005 240);        /* near white with blue tint */
+  --foreground: oklch(0.15 0.02 240);          /* deep navy text */
+
+  /* Cards & Popovers */
+  --card: oklch(1.0 0 0);                      /* pure white cards */
+  --card-foreground: oklch(0.15 0.02 240);
+  --popover: oklch(1.0 0 0);
+  --popover-foreground: oklch(0.15 0.02 240);
+
+  /* Primary — Electric Blue */
+  --primary: oklch(0.55 0.20 255);             /* #3B82F6 blue */
+  --primary-foreground: oklch(1.0 0 0);        /* white text on blue */
+
+  /* Secondary — Light blue tint */
+  --secondary: oklch(0.93 0.04 240);           /* #DBEAFE light blue */
+  --secondary-foreground: oklch(0.25 0.08 255);
+
+  /* Muted */
+  --muted: oklch(0.94 0.02 240);
+  --muted-foreground: oklch(0.50 0.05 240);    /* slate-500 */
+
+  /* Accent — Bright blue highlight */
+  --accent: oklch(0.88 0.08 255);              /* #BFDBFE */
+  --accent-foreground: oklch(0.25 0.15 255);   /* dark blue */
+
+  /* Destructive */
+  --destructive: oklch(0.62 0.20 25);
+  --destructive-foreground: oklch(1.0 0 0);
+
+  /* Border & Input */
+  --border: oklch(0.85 0.04 240);
+  --input: oklch(1.0 0 0);
+  --ring: oklch(0.55 0.20 255);               /* blue focus ring */
+
+  /* Charts — blue shades */
+  --chart-1: oklch(0.55 0.20 255);            /* blue */
+  --chart-2: oklch(0.65 0.15 255);            /* lighter blue */
+  --chart-3: oklch(0.45 0.18 270);            /* indigo */
+  --chart-4: oklch(0.70 0.12 200);            /* cyan */
+  --chart-5: oklch(0.75 0.10 180);            /* teal */
+
+  /* Radius */
+  --radius: 0.625rem;
+
+  /* Sidebar — slightly darker than bg */
+  --sidebar: oklch(0.93 0.03 240);
+  --sidebar-foreground: oklch(0.15 0.02 240);
+  --sidebar-primary: oklch(0.55 0.20 255);
+  --sidebar-primary-foreground: oklch(1.0 0 0);
+  --sidebar-accent: oklch(0.88 0.08 255);
+  --sidebar-accent-foreground: oklch(0.25 0.15 255);
+  --sidebar-border: oklch(0.85 0.04 240);
+  --sidebar-ring: oklch(0.55 0.20 255);
+
+  /* Typography */
+  --font-sans: "Architects Daughter", sans-serif;
+  --font-serif: Georgia, serif;
+  --font-mono: "Fira Code", "Courier New", monospace;
+
+  /* Shadows */
+  --shadow-color: #1e3a5f;
+  --shadow-opacity: 0.08;
+  --shadow-blur: 8px;
+  --shadow-spread: 0px;
+  --shadow-offset-x: 0px;
+  --shadow-offset-y: 4px;
+  --letter-spacing: 0.5px;
+  --spacing: 0.25rem;
+  --shadow-2xs: 0px 2px 4px 0px hsl(215 60% 25% / 0.05);
+  --shadow-xs:  0px 2px 4px 0px hsl(215 60% 25% / 0.06);
+  --shadow-sm:  0px 2px 6px 0px hsl(215 60% 25% / 0.08), 0px 1px 2px -1px hsl(215 60% 25% / 0.05);
+  --shadow:     0px 4px 8px 0px hsl(215 60% 25% / 0.08), 0px 2px 4px -1px hsl(215 60% 25% / 0.06);
+  --shadow-md:  0px 4px 10px 0px hsl(215 60% 25% / 0.10), 0px 2px 4px -1px hsl(215 60% 25% / 0.06);
+  --shadow-lg:  0px 8px 16px 0px hsl(215 60% 25% / 0.10), 0px 4px 6px -1px hsl(215 60% 25% / 0.06);
+  --shadow-xl:  0px 12px 24px 0px hsl(215 60% 25% / 0.12), 0px 8px 10px -1px hsl(215 60% 25% / 0.06);
+  --shadow-2xl: 0px 20px 40px 0px hsl(215 60% 25% / 0.15);
+  --tracking-normal: 0.5px;
+}
+
+/* ============================================
+   DARK MODE — True Navy + Electric Blue
+   ============================================ */
+.dark {
+  /* Base — true dark navy */
+  --background: oklch(0.16 0.025 240);         /* #0F172A navy */
+  --foreground: oklch(0.94 0.01 240);           /* #F8FAFC near white */
+
+  /* Cards — slightly lighter navy */
+  --card: oklch(0.21 0.025 240);               /* #1E293B */
+  --card-foreground: oklch(0.94 0.01 240);
+  --popover: oklch(0.21 0.025 240);
+  --popover-foreground: oklch(0.94 0.01 240);
+
+  /* Primary — Electric Blue (same as light) */
+  --primary: oklch(0.60 0.20 255);             /* #3B82F6 */
+  --primary-foreground: oklch(1.0 0 0);
+
+  /* Secondary — darker navy */
+  --secondary: oklch(0.26 0.03 240);           /* #334155 */
+  --secondary-foreground: oklch(0.80 0.05 240);
+
+  /* Muted */
+  --muted: oklch(0.25 0.025 240);
+  --muted-foreground: oklch(0.60 0.04 240);    /* #94A3B8 slate */
+
+  /* Accent — deep blue highlight */
+  --accent: oklch(0.30 0.06 255);              /* dark blue accent */
+  --accent-foreground: oklch(0.75 0.15 255);   /* #93C5FD light blue */
+
+  /* Destructive */
+  --destructive: oklch(0.65 0.18 25);
+  --destructive-foreground: oklch(1.0 0 0);
+
+  /* Border & Input */
+  --border: oklch(0.30 0.03 240);              /* subtle navy border */
+  --input: oklch(0.21 0.025 240);
+  --ring: oklch(0.60 0.20 255);               /* blue focus ring */
+
+  /* Charts — blue to cyan gradient feel */
+  --chart-1: oklch(0.60 0.20 255);            /* electric blue */
+  --chart-2: oklch(0.70 0.15 255);            /* lighter blue */
+  --chart-3: oklch(0.55 0.18 270);            /* indigo */
+  --chart-4: oklch(0.72 0.14 200);            /* cyan */
+  --chart-5: oklch(0.75 0.12 180);            /* teal */
+
+  /* Radius */
+  --radius: 0.625rem;
+
+  /* Sidebar — darkest navy */
+  --sidebar: oklch(0.13 0.025 240);            /* #0B1120 */
+  --sidebar-foreground: oklch(0.94 0.01 240);
+  --sidebar-primary: oklch(0.60 0.20 255);
+  --sidebar-primary-foreground: oklch(1.0 0 0);
+  --sidebar-accent: oklch(0.30 0.06 255);
+  --sidebar-accent-foreground: oklch(0.75 0.15 255);
+  --sidebar-border: oklch(0.25 0.025 240);
+  --sidebar-ring: oklch(0.60 0.20 255);
+
+  /* Typography */
+  --font-sans: "Architects Daughter", sans-serif;
+  --font-serif: Georgia, serif;
+  --font-mono: "Fira Code", "Courier New", monospace;
+
+  /* Shadows — blue-tinted in dark mode */
+  --shadow-color: #0f172a;
+  --shadow-opacity: 0.40;
+  --shadow-blur: 10px;
+  --shadow-spread: 0px;
+  --shadow-offset-x: 0px;
+  --shadow-offset-y: 4px;
+  --letter-spacing: 0.5px;
+  --spacing: 0.25rem;
+  --shadow-2xs: 0px 2px 4px 0px hsl(215 60% 5% / 0.20);
+  --shadow-xs:  0px 2px 4px 0px hsl(215 60% 5% / 0.25);
+  --shadow-sm:  0px 2px 6px 0px hsl(215 60% 5% / 0.30), 0px 1px 2px -1px hsl(215 60% 5% / 0.20);
+  --shadow:     0px 4px 8px 0px hsl(215 60% 5% / 0.35), 0px 2px 4px -1px hsl(215 60% 5% / 0.20);
+  --shadow-md:  0px 4px 10px 0px hsl(215 60% 5% / 0.40), 0px 2px 4px -1px hsl(215 60% 5% / 0.25);
+  --shadow-lg:  0px 8px 16px 0px hsl(215 60% 5% / 0.40), 0px 4px 6px -1px hsl(215 60% 5% / 0.25);
+  --shadow-xl:  0px 12px 24px 0px hsl(215 60% 5% / 0.45), 0px 8px 10px -1px hsl(215 60% 5% / 0.25);
+  --shadow-2xl: 0px 20px 40px 0px hsl(215 60% 5% / 0.55);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
   }
-}
-
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  body {
+    @apply bg-background text-foreground;
+    letter-spacing: var(--tracking-normal);
+  }
+  html {
+    @apply font-sans;
+  }
 }
