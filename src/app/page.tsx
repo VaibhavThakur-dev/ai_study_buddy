@@ -1,6 +1,8 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
+import { useSession } from 'next-auth/react'
+import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import {
   BookOpen,
@@ -111,7 +113,14 @@ const stats = [
 
 /* ─── Page ──────────────────────────────────────────────────────── */
 export default function HomePage() {
+  const { status } = useSession()
+  const router = useRouter()
   const [mounted, setMounted] = useState(false)
+
+  useEffect(() => {
+    if (status === 'authenticated') router.replace('/dashboard')
+  }, [status, router])
+
   useEffect(() => { const t = setTimeout(() => setMounted(true), 60); return () => clearTimeout(t) }, [])
 
   return (

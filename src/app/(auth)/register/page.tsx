@@ -1,10 +1,11 @@
 'use client'
 
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { useRouter } from 'next/navigation'
+import { useSession } from 'next-auth/react'
 import { toast } from 'sonner'
 import Link from 'next/link'
 import { BookOpen, Loader2, Mail, ArrowLeft, RefreshCw, Eye, EyeOff } from 'lucide-react'
@@ -30,6 +31,12 @@ type FormValues = z.infer<typeof formSchema>
 
 export default function RegisterPage() {
   const router = useRouter()
+  const { status } = useSession()
+
+  // Already logged in → go straight to dashboard
+  useEffect(() => {
+    if (status === 'authenticated') router.replace('/dashboard')
+  }, [status, router])
 
   const [step, setStep] = useState<'form' | 'otp'>('form')
   const [pendingData, setPendingData] = useState<FormValues | null>(null)
@@ -172,7 +179,11 @@ export default function RegisterPage() {
 
   /* ── Render ── */
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background p-4">
+    <div className="min-h-screen flex flex-col items-center justify-center bg-background p-4">
+      <Link href="/" className="flex items-center gap-2 font-bold text-lg mb-6 hover:opacity-80 transition-opacity">
+        <BookOpen className="h-5 w-5 text-primary" />
+        AI Study Buddy
+      </Link>
       <Card className="w-full max-w-md">
 
         {step === 'form' ? (

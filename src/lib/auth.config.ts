@@ -7,7 +7,7 @@ export const authConfig = {
   pages: {
     signIn: '/login',
   },
-  session: { strategy: 'jwt' as const },
+  session: { strategy: 'jwt' as const, maxAge: 15 * 24 * 60 * 60 }, // 15 days
   providers: [],
   callbacks: {
     authorized({ auth }) {

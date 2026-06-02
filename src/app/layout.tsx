@@ -25,6 +25,11 @@ const fontMono = IBM_Plex_Mono({
 export const metadata: Metadata = {
   title: "AI Study Buddy",
   description: "AI-powered study platform for smarter learning",
+  icons: {
+    icon: '/icon.svg',
+    shortcut: '/icon.svg',
+    apple: '/icon.svg',
+  },
 }
 
 export default function RootLayout({
