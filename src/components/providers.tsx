@@ -2,6 +2,7 @@
 
 import { SessionProvider } from 'next-auth/react'
 import { Toaster } from '@/components/ui/sonner'
+import { ThemeProvider } from '@/components/theme-provider'
 
 interface ProvidersProps {
   children: React.ReactNode
@@ -9,9 +10,11 @@ interface ProvidersProps {
 
 export function Providers({ children }: ProvidersProps) {
   return (
-    <SessionProvider>
-      {children}
-      <Toaster richColors position="top-right" />
-    </SessionProvider>
+    <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
+      <SessionProvider>
+        {children}
+        <Toaster richColors position="top-right" />
+      </SessionProvider>
+    </ThemeProvider>
   )
 }

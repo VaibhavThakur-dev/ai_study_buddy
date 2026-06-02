@@ -2,7 +2,8 @@
 
 import Link from 'next/link'
 import { signOut, useSession } from 'next-auth/react'
-import { BookOpen, BarChart2, LogOut } from 'lucide-react'
+import { useTheme } from 'next-themes'
+import { BookOpen, BarChart2, LogOut, Sun, Moon } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import {
@@ -19,6 +20,7 @@ import {
 
 export default function Navbar() {
   const { data: session } = useSession()
+  const { theme, setTheme } = useTheme()
   const initial = session?.user?.name?.[0]?.toUpperCase() ?? '?'
 
   return (
@@ -36,6 +38,19 @@ export default function Navbar() {
               Progress
             </Button>
           </Link>
+
+          {/* Dark mode slider toggle */}
+          <button
+            onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+            aria-label="Toggle dark mode"
+            className="flex items-center gap-1.5 px-1 py-1 rounded-full border border-border bg-muted transition-colors hover:bg-accent"
+          >
+            <Sun className="h-3.5 w-3.5 text-yellow-500 ml-1" />
+            <div className="relative w-9 h-5 rounded-full bg-border transition-colors dark:bg-primary">
+              <span className="absolute top-0.5 left-0.5 h-4 w-4 rounded-full bg-white shadow transition-all duration-300 dark:translate-x-4" />
+            </div>
+            <Moon className="h-3.5 w-3.5 text-blue-400 mr-1" />
+          </button>
 
           {/* Avatar → Profile page */}
           <Link href="/profile" className="mx-2">

@@ -1,13 +1,25 @@
 import type { Metadata } from "next"
-import { Architects_Daughter } from "next/font/google"
+import { Poppins, Libre_Baskerville, IBM_Plex_Mono } from "next/font/google"
 import { Providers } from "@/components/providers"
 import "./globals.css"
 import "katex/dist/katex.min.css"
 
-const fontSans = Architects_Daughter({
-  weight: "400",
+const fontSans = Poppins({
   subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
   variable: "--font-sans",
+})
+
+const fontSerif = Libre_Baskerville({
+  subsets: ["latin"],
+  weight: ["400", "700"],
+  variable: "--font-serif",
+})
+
+const fontMono = IBM_Plex_Mono({
+  subsets: ["latin"],
+  weight: ["400", "500"],
+  variable: "--font-mono",
 })
 
 export const metadata: Metadata = {
@@ -22,7 +34,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`${fontSans.variable} antialiased`}>
+      <body className={`${fontSans.variable} ${fontSerif.variable} ${fontMono.variable} antialiased`}>
         <Providers>{children}</Providers>
       </body>
     </html>
