@@ -3,6 +3,7 @@ import { auth } from '@/lib/auth'
 import connectDB from '@/lib/mongodb'
 import Subject from '@/models/Subject'
 import Lesson from '@/models/Lesson'
+import User from '@/models/User'
 import { generateFlashcards } from '@/lib/openrouter'
 
 export async function GET(request: Request) {
@@ -28,7 +29,9 @@ export async function GET(request: Request) {
     const subject = await Subject.findOne({ _id: subjectId, userId: session.user.id }).lean()
     if (!subject) return NextResponse.json({ error: 'Subject not found' }, { status: 404 })
 
-    const flashcards = await generateFlashcards(topic, subject.name)
+    const userDoc = await User.findById(session.user.id).lean()
+    const grade = userDoc?.grade ?? null
+    const flashcards = await generateFlashcards(topic, subject.name, grade)
     return NextResponse.json({ success: true, data: flashcards, cached: false })
   } catch {
     return NextResponse.json({ error: 'Failed to generate flashcards' }, { status: 500 })

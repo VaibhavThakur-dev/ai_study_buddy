@@ -20,6 +20,7 @@ export async function GET() {
         email: user.email,
         image: user.image,
         grade: user.grade ?? null,
+        age: user.age ?? null,
       },
     })
   } catch {
@@ -30,6 +31,7 @@ export async function GET() {
 const patchSchema = z.object({
   name: z.string().min(2).max(60).optional(),
   grade: z.number().int().min(3).max(12).nullable().optional(),
+  age: z.number().int().min(5).max(30).nullable().optional(),
 })
 
 export async function PATCH(request: Request) {
@@ -54,7 +56,7 @@ export async function PATCH(request: Request) {
 
     return NextResponse.json({
       success: true,
-      data: { name: updated.name, email: updated.email, grade: updated.grade ?? null },
+      data: { name: updated.name, email: updated.email, grade: updated.grade ?? null, age: updated.age ?? null },
     })
   } catch (err) {
     console.error('[user/profile PATCH]', err)

@@ -3,6 +3,7 @@ import { auth } from '@/lib/auth'
 import connectDB from '@/lib/mongodb'
 import Subject from '@/models/Subject'
 import Test from '@/models/Test'
+import User from '@/models/User'
 import { generateMCQ } from '@/lib/openrouter'
 
 export async function GET(request: Request) {
@@ -33,7 +34,9 @@ export async function GET(request: Request) {
       .flatMap((t) => t.questions.map((q: { question: string }) => q.question))
       .slice(0, count * 2)
 
-    const questions = await generateMCQ(topic, subject.name, count, usedQuestions)
+    const userDoc = await User.findById(session.user.id).lean()
+    const grade = userDoc?.grade ?? null
+    const questions = await generateMCQ(topic, subject.name, count, usedQuestions, grade)
     return NextResponse.json({ success: true, data: { questions } })
   } catch (err) {
     const message = err instanceof Error ? err.message : 'Failed to generate test'

@@ -57,10 +57,11 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   ],
   callbacks: {
     ...authConfig.callbacks,
-    async jwt({ token, user, account }) {
+    async jwt({ token, user, account, trigger, session: updatedData }) {
       // Credentials: user.id is already MongoDB _id (set in authorize())
       if (user?.id && account?.provider === 'credentials') {
         token.sub = user.id
+        token.name = user.name
       }
       // Google: look up MongoDB _id by email — Google's user.id is a UUID, not ObjectId
       if (account?.provider === 'google' && user?.email) {
@@ -68,7 +69,12 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         const dbUser = await User.findOne({ email: user.email }).lean()
         if (dbUser) {
           token.sub = (dbUser._id as { toString(): string }).toString()
+          token.name = dbUser.name
         }
+      }
+      // Profile update — refresh name in token so session reflects new name everywhere
+      if (trigger === 'update' && (updatedData as { name?: string })?.name) {
+        token.name = (updatedData as { name: string }).name
       }
       return token
     },

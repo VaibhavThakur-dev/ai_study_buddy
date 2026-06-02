@@ -219,6 +219,15 @@ function parseJSON<T>(text: string, isArray: boolean): T {
   }
 }
 
+// Returns a grade-level instruction string for AI prompts
+function gradeContext(grade?: number | null): string {
+  if (!grade) return ''
+  if (grade <= 5)  return `The student is in Class ${grade} (age ~${grade + 5}). Use very simple language, basic concepts only, short sentences, fun real-life examples. Avoid complex formulas.`
+  if (grade <= 8)  return `The student is in Class ${grade} (age ~${grade + 5}). Use clear and simple language, NCERT-level concepts, basic formulas with explanation, relatable examples.`
+  if (grade <= 10) return `The student is in Class ${grade} preparing for board exams. Use standard NCERT language, include important formulas, step-by-step solutions, exam-focused examples.`
+  return `The student is in Class ${grade} (senior secondary). Use advanced concepts, detailed derivations, board exam level content, rigorous explanations.`
+}
+
 export interface LessonResult {
   content: string
   flashcards: Array<{ question: string; answer: string }>
@@ -299,7 +308,8 @@ function normalizeMCQ(raw: unknown): MCQQuestion[] {
   return results
 }
 
-export async function generateLesson(topic: string, subject: string): Promise<LessonResult> {
+export async function generateLesson(topic: string, subject: string, grade?: number | null): Promise<LessonResult> {
+  const levelNote = gradeContext(grade)
   const text = await callAI(
     [
       {
@@ -310,12 +320,13 @@ export async function generateLesson(topic: string, subject: string): Promise<Le
       {
         role: 'user',
         content: `Write a full lesson on Topic: "${topic}" for Subject: "${subject}".
-
+${levelNote ? `\nStudent level: ${levelNote}\n` : ''}
 Rules:
 - Return ONLY valid JSON — no extra text before or after
 - The "content" field must be real markdown text (minimum 200 words) — NOT a placeholder, NOT "...", NOT "…"
+- Difficulty and language MUST match the student's class level above
 - Include ## headings, bullet points, key formulas with LaTeX ($formula$), and a worked example
-- The "flashcards" array must have exactly 5 real question-answer pairs
+- The "flashcards" array must have exactly 5 real question-answer pairs appropriate for this class level
 
 JSON format:
 {"content":"## Introduction\\n\\nWrite the full lesson here with real content...","flashcards":[{"question":"What is ...?","answer":"It is ..."},{"question":"Define ...","answer":"..."},{"question":"How do you ...?","answer":"..."},{"question":"What happens when ...?","answer":"..."},{"question":"Give an example of ...","answer":"..."}]}`,
@@ -380,12 +391,14 @@ export async function generateMCQ(
   topic: string,
   subject: string,
   count: number = 10,
-  excludeQuestions: string[] = []
+  excludeQuestions: string[] = [],
+  grade?: number | null
 ): Promise<MCQQuestion[]> {
   const excludeNote =
     excludeQuestions.length > 0
       ? `\n\nDo NOT repeat: ${excludeQuestions.slice(0, 8).join(' | ')}`
       : ''
+  const levelNote = gradeContext(grade)
 
   const maxTok = Math.max(count * 220, 1800)
 
@@ -401,7 +414,7 @@ export async function generateMCQ(
         {
           role: 'user',
           content: `Create ${count} MCQ questions on "${topic}" (${subject}).${excludeNote}
-
+${levelNote ? `\nStudent level: ${levelNote}\nAll questions and options MUST match this class level.\n` : ''}
 Output ONLY this JSON array (nothing else):
 [{"question":"If CP=100 and SP=120, what is profit%?","options":["10%","20%","25%","30%"],"correct":1},
  {"question":"next question?","options":["opt1","opt2","opt3","opt4"],"correct":0}]
@@ -469,13 +482,15 @@ export async function chatWithTutor(
   subject: string,
   topic: string,
   history: string,
-  message: string
+  message: string,
+  grade?: number | null
 ): Promise<string> {
+  const levelNote = gradeContext(grade)
   return callAI(
     [
       {
         role: 'system',
-        content: `You are a helpful study tutor for ${subject}, topic: ${topic}. Answer in 2-4 clear sentences using simple language.`,
+        content: `You are a helpful study tutor for ${subject}, topic: ${topic}.${levelNote ? ` ${levelNote}` : ''} Answer in 2-4 clear sentences using language appropriate for this student's level.`,
       },
       { role: 'user', content: history ? `${history}\nStudent: ${message}` : message },
     ],
@@ -487,8 +502,10 @@ export async function chatWithTutor(
 
 export async function generateFlashcards(
   topic: string,
-  subject: string
+  subject: string,
+  grade?: number | null
 ): Promise<Array<{ question: string; answer: string }>> {
+  const levelNote = gradeContext(grade)
   const text = await callAI(
     [
       {
@@ -498,7 +515,7 @@ export async function generateFlashcards(
       {
         role: 'user',
         content: `Generate 8 study flashcards for Topic: "${topic}", Subject: "${subject}".
-
+${levelNote ? `Student level: ${levelNote}\nFlashcards must match this level.\n` : ''}
 Return ONLY this JSON array:
 [{"question":"...","answer":"..."}]`,
       },

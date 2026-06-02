@@ -6,6 +6,7 @@ export interface IUserDocument extends Document {
   password?: string | null
   image?: string
   grade?: number | null
+  age?: number | null
   isVerified: boolean
   createdAt: Date
 }
@@ -17,6 +18,7 @@ const UserSchema = new Schema<IUserDocument>(
     password: { type: String, default: null },
     image: { type: String },
     grade: { type: Number, min: 3, max: 12, default: null },
+    age: { type: Number, min: 5, max: 30, default: null },
     isVerified: { type: Boolean, default: false },
   },
   { timestamps: { createdAt: true, updatedAt: false } }

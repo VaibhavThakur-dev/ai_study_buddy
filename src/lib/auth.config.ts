@@ -17,10 +17,18 @@ export const authConfig = {
       if (session.user && token.sub) {
         session.user.id = token.sub
       }
+      if (session.user && token.name) {
+        session.user.name = token.name as string
+      }
       return session
     },
-    async jwt({ token, user }) {
+    async jwt({ token, user, trigger, session: updatedData }) {
       if (user?.id) token.sub = user.id
+      if (user?.name) token.name = user.name
+      // Handle profile update — refresh name in token
+      if (trigger === 'update' && (updatedData as { name?: string })?.name) {
+        token.name = (updatedData as { name: string }).name
+      }
       return token
     },
   },

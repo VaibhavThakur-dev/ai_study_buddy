@@ -13,6 +13,7 @@ export interface IUserProfile {
   email: string
   image?: string
   grade?: number | null
+  age?: number | null
 }
 
 export interface ISubject {

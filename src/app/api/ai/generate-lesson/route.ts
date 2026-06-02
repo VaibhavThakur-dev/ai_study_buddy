@@ -3,6 +3,7 @@ import { auth } from '@/lib/auth'
 import connectDB from '@/lib/mongodb'
 import Subject from '@/models/Subject'
 import Lesson from '@/models/Lesson'
+import User from '@/models/User'
 import { generateLesson } from '@/lib/openrouter'
 
 export async function GET(request: Request) {
@@ -36,7 +37,9 @@ export async function GET(request: Request) {
       await Lesson.deleteOne({ _id: cached._id })
     }
 
-    const result = await generateLesson(topic, subject.name)
+    const userDoc = await User.findById(session.user.id).lean()
+    const grade = userDoc?.grade ?? null
+    const result = await generateLesson(topic, subject.name, grade)
 
     const lesson = await Lesson.create({
       subjectId,

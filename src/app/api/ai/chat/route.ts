@@ -4,6 +4,7 @@ import { auth } from '@/lib/auth'
 import connectDB from '@/lib/mongodb'
 import Subject from '@/models/Subject'
 import ChatMessage from '@/models/ChatMessage'
+import User from '@/models/User'
 import { chatWithTutor } from '@/lib/openrouter'
 
 const schema = z.object({
@@ -66,7 +67,9 @@ export async function POST(request: Request) {
       .map((m) => `${m.role === 'user' ? 'Student' : 'Tutor'}: ${m.content}`)
       .join('\n')
 
-    const aiResponse = await chatWithTutor(subject.name, topic, history, message)
+    const userDoc = await User.findById(session.user.id).lean()
+    const grade = userDoc?.grade ?? null
+    const aiResponse = await chatWithTutor(subject.name, topic, history, message, grade)
 
     await ChatMessage.insertMany([
       { subjectId, userId: session.user.id, topic, role: 'user', content: message },
