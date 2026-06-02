@@ -53,7 +53,12 @@ export async function POST(request: Request) {
     // Send email
     await sendOTPEmail(email, code)
 
-    return NextResponse.json({ success: true })
+    const response: { success: boolean; devOtp?: string } = { success: true }
+    if (process.env.NODE_ENV === 'development' && (!process.env.SMTP_USER || !process.env.SMTP_PASS)) {
+      response.devOtp = code
+    }
+
+    return NextResponse.json(response)
   } catch (err) {
     console.error('[send-otp]', err)
     return NextResponse.json(

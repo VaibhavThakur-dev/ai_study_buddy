@@ -1,12 +1,26 @@
 const BASE_URL = 'https://openrouter.ai/api/v1/chat/completions'
 
-// Verified free models on OpenRouter (June 2025) — sorted by weekly usage
-// Update list: https://openrouter.ai/models?free=true
-const FREE_MODELS = [
-  'nvidia/nemotron-3-super-120b-a12b:free', // #1 most used — 699B tokens/week
-  'poolside/laguna-m.1:free',               // #2 — 555B tokens/week
-  'google/gemma-4-31b-it:free',             // Gemma 4 31B
-  'moonshotai/kimi-k2.6:free',              // Kimi K2
+// Per-model timeout — skip to next model if no response within this time
+const MODEL_TIMEOUT_MS = 25_000
+
+// ── Task-specific model lists (all 100% FREE on OpenRouter) ─────────
+// Source: openrouter.ai/models?free=true  — verified June 2025
+//
+// JSON tasks (lesson / MCQ / flashcards / topic extraction):
+// Need strong instruction-following + valid structured JSON output
+const JSON_MODELS = [
+  'meta-llama/llama-3.3-70b-instruct:free',  // #1 — Llama 3.3 70B, best JSON + instructions
+  'openai/gpt-oss-120b:free',                // #2 — OpenAI open-source 120B, GPT quality free
+  'nvidia/nemotron-3-super-120b-a12b:free',  // #3 — 876B tokens/week, very powerful
+  'google/gemma-4-31b-it:free',              // #4 — Reliable fallback
+]
+
+// Chat tutor: needs natural conversation + reasoning
+const CHAT_MODELS = [
+  'meta-llama/llama-3.3-70b-instruct:free',  // #1 — Best conversational quality
+  'moonshotai/kimi-k2.6:free',               // #2 — Strong reasoning
+  'openai/gpt-oss-120b:free',                // #3 — OpenAI OSS quality
+  'nvidia/nemotron-3-super-120b-a12b:free',  // #4 — Powerful fallback
 ]
 
 interface Message {
@@ -22,14 +36,19 @@ interface OpenRouterResponse {
 async function callAI(
   messages: Message[],
   maxTokens: number = 800,
-  temperature: number = 0.7
+  temperature: number = 0.7,
+  models: string[] = JSON_MODELS
 ): Promise<string> {
   let lastError = 'No models available'
 
-  for (const model of FREE_MODELS) {
+  for (const model of models) {
+    const controller = new AbortController()
+    const timer = setTimeout(() => controller.abort(), MODEL_TIMEOUT_MS)
+
     try {
       const res = await fetch(BASE_URL, {
         method: 'POST',
+        signal: controller.signal,
         headers: {
           Authorization: `Bearer ${process.env.OPENROUTER_API_KEY}`,
           'Content-Type': 'application/json',
@@ -39,6 +58,7 @@ async function callAI(
         body: JSON.stringify({ model, messages, max_tokens: maxTokens, temperature }),
       })
 
+      clearTimeout(timer)
       const raw = await res.text()
 
       if (!res.ok) {
@@ -67,6 +87,7 @@ async function callAI(
 
       return content.trim() // success — stop here
     } catch (err) {
+      clearTimeout(timer)
       lastError = `${model} → ${err instanceof Error ? err.message : 'network error'}`
       continue
     }
@@ -81,11 +102,28 @@ async function callAI(
 
    For arrays:  finds the matching ] for the first [
                 If truncated, salvages all complete {...} elements
-   For objects: finds the matching } for the first {
+   For objects: finds the matching } for the FIRST { followed by a "
+                (skips math expressions like {c_1b_2 - c_2b_1})
 ─────────────────────────────────────────────────────────────────── */
-function extractStructure(text: string, isArray: boolean): string {
+function findJsonStart(text: string, isArray: boolean): number {
   const openCh = isArray ? '[' : '{'
-  const start = text.indexOf(openCh)
+  let pos = 0
+  while (pos < text.length) {
+    const idx = text.indexOf(openCh, pos)
+    if (idx === -1) return -1
+    if (isArray) return idx
+    // For objects: require first non-whitespace char after { to be " (a JSON key)
+    // This skips math expressions like {c_1b_2 - c_2b_1}
+    let next = idx + 1
+    while (next < text.length && /\s/.test(text[next])) next++
+    if (text[next] === '"') return idx
+    pos = idx + 1
+  }
+  return -1
+}
+
+function extractStructure(text: string, isArray: boolean): string {
+  const start = findJsonStart(text, isArray)
   if (start === -1) return ''
 
   let depth = 0
@@ -113,6 +151,35 @@ function extractStructure(text: string, isArray: boolean): string {
 
   // Array is truncated — salvage complete elements
   if (isArray && lastElementEnd !== -1) return text.slice(start, lastElementEnd + 1) + ']'
+
+  // Object is truncated — close all open brackets so we get partial but parseable JSON
+  if (!isArray && depth > 0) {
+    let salvage = text.slice(start)
+
+    // If we ended mid-string, strip the incomplete string
+    if (inString) {
+      const lastQuote = salvage.lastIndexOf('"')
+      if (lastQuote > 0) salvage = salvage.slice(0, lastQuote)
+    }
+
+    // Strip a trailing incomplete key (e.g. ,"keyName": or ,"keyName")
+    salvage = salvage.replace(/,?\s*"[^"]*"\s*:\s*$/, '')
+    salvage = salvage.replace(/,?\s*"[^"]*"\s*$/, '')
+
+    // Re-count open brackets in salvaged text and close them
+    const closers: string[] = []
+    let inS = false, esc = false
+    for (const ch of salvage) {
+      if (esc)              { esc = false; continue }
+      if (ch === '\\' && inS) { esc = true; continue }
+      if (ch === '"')       { inS = !inS; continue }
+      if (inS)              continue
+      if (ch === '{' || ch === '[') closers.push(ch === '{' ? '}' : ']')
+      if (ch === '}' || ch === ']') closers.pop()
+    }
+    return salvage + closers.reverse().join('')
+  }
+
   return ''
 }
 
@@ -137,9 +204,10 @@ function parseJSON<T>(text: string, isArray: boolean): T {
 
   // 4. Common LLM repairs
   const repaired = candidate
-    .replace(/,\s*([}\]])/g, '$1')                       // trailing commas
-    .replace(/:\s*'([^']*)'/g, ': "$1"')                  // single-quoted values
-    .replace(/([{,]\s*)([a-zA-Z_]\w*)\s*:/g, '$1"$2":')  // unquoted keys
+    .replace(/,\s*[.…]{1,3}\s*(?=[}\]])/g, '')            // ", ..." or ", …" fake elements
+    .replace(/,\s*([}\]])/g, '$1')                         // trailing commas
+    .replace(/:\s*'([^']*)'/g, ': "$1"')                   // single-quoted values
+    .replace(/([{,]\s*)([a-zA-Z_]\w*)\s*:/g, '$1"$2":')   // unquoted keys
 
   try {
     return JSON.parse(repaired) as T
@@ -241,16 +309,31 @@ export async function generateLesson(topic: string, subject: string): Promise<Le
       },
       {
         role: 'user',
-        content: `Generate a detailed lesson for Topic: "${topic}", Subject: "${subject}".
+        content: `Write a full lesson on Topic: "${topic}" for Subject: "${subject}".
 
-Return ONLY this exact JSON structure (no other text):
-{"content":"<markdown lesson, minimum 300 words. Use ## headings, bullet points, tables. For math formulas use LaTeX inline $formula$ or display $$formula$$. Include key formulas, examples with step-by-step solutions.>","flashcards":[{"question":"<q>","answer":"<a>"},{"question":"<q>","answer":"<a>"},{"question":"<q>","answer":"<a>"},{"question":"<q>","answer":"<a>"},{"question":"<q>","answer":"<a>"}]}`,
+Rules:
+- Return ONLY valid JSON — no extra text before or after
+- The "content" field must be real markdown text (minimum 200 words) — NOT a placeholder, NOT "...", NOT "…"
+- Include ## headings, bullet points, key formulas with LaTeX ($formula$), and a worked example
+- The "flashcards" array must have exactly 5 real question-answer pairs
+
+JSON format:
+{"content":"## Introduction\\n\\nWrite the full lesson here with real content...","flashcards":[{"question":"What is ...?","answer":"It is ..."},{"question":"Define ...","answer":"..."},{"question":"How do you ...?","answer":"..."},{"question":"What happens when ...?","answer":"..."},{"question":"Give an example of ...","answer":"..."}]}`,
       },
     ],
-    1000,
-    0.7
+    2500,
+    0.7,
+    JSON_MODELS
   )
-  return parseJSON<LessonResult>(text, false)
+  const result = parseJSON<LessonResult>(text, false)
+
+  // Reject placeholder responses — content must be real text
+  const meaningful = result.content?.replace(/[.\s…\n]/g, '') ?? ''
+  if (meaningful.length < 80) {
+    throw new Error('AI returned placeholder content. Please try again.')
+  }
+
+  return result
 }
 
 /* ── Text-format MCQ parser ─────────────────────────────────────────
@@ -329,7 +412,8 @@ Output ONLY this JSON array (nothing else):
         },
       ],
       maxTok,
-      0.4
+      0.4,
+      JSON_MODELS
     )
 
     const raw = parseJSON<unknown[]>(rawText, true)
@@ -370,7 +454,8 @@ A) ...`,
       },
     ],
     maxTok,
-    0.5
+    0.5,
+    JSON_MODELS
   )
 
   const questions = parseTextMCQ(textResponse)
@@ -395,7 +480,8 @@ export async function chatWithTutor(
       { role: 'user', content: history ? `${history}\nStudent: ${message}` : message },
     ],
     500,
-    0.8
+    0.8,
+    CHAT_MODELS
   )
 }
 
@@ -418,7 +504,8 @@ Return ONLY this JSON array:
       },
     ],
     600,
-    0.5
+    0.5,
+    JSON_MODELS
   )
   return parseJSON<Array<{ question: string; answer: string }>>(text, true)
 }
@@ -440,7 +527,8 @@ Return ONLY: ["Topic 1","Topic 2","Topic 3"]`,
       },
     ],
     300,
-    0.3
+    0.3,
+    JSON_MODELS
   )
   const topics = parseJSON<string[]>(text, true)
   return topics.filter((t) => typeof t === 'string' && t.trim().length > 0).slice(0, 15)

@@ -7,7 +7,7 @@ import { z } from 'zod'
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
 import Link from 'next/link'
-import { BookOpen, Loader2, Mail, ArrowLeft, RefreshCw } from 'lucide-react'
+import { BookOpen, Loader2, Mail, ArrowLeft, RefreshCw, Eye, EyeOff } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -37,6 +37,8 @@ export default function RegisterPage() {
   const [verifying, setVerifying] = useState(false)
   const [otp, setOtp] = useState(['', '', '', '', '', ''])
   const [resendCooldown, setResendCooldown] = useState(0)
+  const [showPassword, setShowPassword] = useState(false)
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const inputRefs = useRef<(HTMLInputElement | null)[]>([])
 
   const {
@@ -53,7 +55,7 @@ export default function RegisterPage() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email: data.email }),
     })
-    const json = (await res.json()) as { error?: string }
+    const json = (await res.json()) as { error?: string; devOtp?: string }
     setSendingOTP(false)
 
     if (!res.ok) {
@@ -64,7 +66,12 @@ export default function RegisterPage() {
     setPendingData(data)
     setStep('otp')
     startResendCooldown()
-    toast.success(`Verification code sent to ${data.email}`)
+
+    if (json.devOtp) {
+      toast.info(`[DEV] Your OTP is: ${json.devOtp}`, { duration: 30000 })
+    } else {
+      toast.success(`Verification code sent to ${data.email}`)
+    }
   }
 
   /* ── Step 2: Verify OTP + Register ── */
@@ -144,7 +151,7 @@ export default function RegisterPage() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email: pendingData.email }),
     })
-    const json = (await res.json()) as { error?: string }
+    const json = (await res.json()) as { error?: string; devOtp?: string }
     setSendingOTP(false)
 
     if (!res.ok) {
@@ -155,7 +162,12 @@ export default function RegisterPage() {
     setOtp(['', '', '', '', '', ''])
     inputRefs.current[0]?.focus()
     startResendCooldown()
-    toast.success('New verification code sent!')
+
+    if (json.devOtp) {
+      toast.info(`[DEV] Your OTP is: ${json.devOtp}`, { duration: 30000 })
+    } else {
+      toast.success('New verification code sent!')
+    }
   }
 
   /* ── Render ── */
@@ -189,13 +201,45 @@ export default function RegisterPage() {
 
                 <div className="space-y-1">
                   <Label htmlFor="password">Password</Label>
-                  <Input id="password" type="password" placeholder="Min. 8 characters" {...register('password')} />
+                  <div className="relative">
+                    <Input
+                      id="password"
+                      type={showPassword ? 'text' : 'password'}
+                      placeholder="Min. 8 characters"
+                      className="pr-10"
+                      {...register('password')}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(prev => !prev)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                      tabIndex={-1}
+                    >
+                      {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                    </button>
+                  </div>
                   {errors.password && <p className="text-xs text-destructive">{errors.password.message}</p>}
                 </div>
 
                 <div className="space-y-1">
                   <Label htmlFor="confirmPassword">Confirm password</Label>
-                  <Input id="confirmPassword" type="password" placeholder="••••••••" {...register('confirmPassword')} />
+                  <div className="relative">
+                    <Input
+                      id="confirmPassword"
+                      type={showConfirmPassword ? 'text' : 'password'}
+                      placeholder="••••••••"
+                      className="pr-10"
+                      {...register('confirmPassword')}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowConfirmPassword(prev => !prev)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                      tabIndex={-1}
+                    >
+                      {showConfirmPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                    </button>
+                  </div>
                   {errors.confirmPassword && <p className="text-xs text-destructive">{errors.confirmPassword.message}</p>}
                 </div>
 

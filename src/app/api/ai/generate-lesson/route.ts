@@ -12,6 +12,7 @@ export async function GET(request: Request) {
   const { searchParams } = new URL(request.url)
   const subjectId = searchParams.get('subjectId')
   const topic = searchParams.get('topic')
+  const force = searchParams.get('force') === 'true'
 
   if (!subjectId || !topic) {
     return NextResponse.json({ error: 'subjectId and topic required' }, { status: 400 })
@@ -24,8 +25,15 @@ export async function GET(request: Request) {
     if (!subject) return NextResponse.json({ error: 'Subject not found' }, { status: 404 })
 
     const cached = await Lesson.findOne({ subjectId, userId: session.user.id, topic }).lean()
+
     if (cached) {
-      return NextResponse.json({ success: true, data: { ...cached, _id: cached._id.toString() }, cached: true })
+      // Delete bad cached lessons (placeholder content or too short)
+      const meaningful = cached.content?.replace(/[.\s…\n]/g, '') ?? ''
+      if (!force && meaningful.length >= 80) {
+        return NextResponse.json({ success: true, data: { ...cached, _id: cached._id.toString() }, cached: true })
+      }
+      // Delete bad/forced cache entry and regenerate
+      await Lesson.deleteOne({ _id: cached._id })
     }
 
     const result = await generateLesson(topic, subject.name)

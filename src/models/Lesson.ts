@@ -33,7 +33,7 @@ const LessonSchema = new Schema<ILessonDocument>(
   { timestamps: { createdAt: true, updatedAt: false } }
 )
 
-const Lesson =
-  mongoose.models.Lesson ?? mongoose.model<ILessonDocument>('Lesson', LessonSchema)
+if (process.env.NODE_ENV !== 'production') delete mongoose.models['Lesson']
+const Lesson = mongoose.model<ILessonDocument>('Lesson', LessonSchema)
 
 export default Lesson

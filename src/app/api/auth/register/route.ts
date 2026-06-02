@@ -60,7 +60,7 @@ export async function POST(request: Request) {
     await OTP.deleteOne({ _id: otpDoc._id })
 
     const hashed = await bcryptjs.hash(password, 12)
-    await User.create({ name, email, password: hashed })
+    await User.create({ name, email, password: hashed, isVerified: true })
 
     return NextResponse.json({ success: true }, { status: 201 })
   } catch (err) {

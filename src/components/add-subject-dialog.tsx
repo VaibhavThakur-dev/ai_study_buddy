@@ -153,10 +153,13 @@ export default function AddSubjectDialog() {
       <DialogContent className="sm:max-w-lg">
         {/* ── Step 1: Grade not set ── */}
         {checkingGrade ? (
-          <div className="flex items-center justify-center py-12 gap-3">
-            <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
-            <span className="text-muted-foreground text-sm">Checking profile…</span>
-          </div>
+          <>
+            <DialogTitle className="sr-only">Loading</DialogTitle>
+            <div className="flex items-center justify-center py-12 gap-3">
+              <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+              <span className="text-muted-foreground text-sm">Checking profile…</span>
+            </div>
+          </>
         ) : step === 'grade' ? (
           <>
             <DialogHeader>

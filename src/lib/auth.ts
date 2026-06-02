@@ -32,7 +32,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         if (!credentials?.email || !credentials?.password) return null
 
         await connectDB()
-        const user = await User.findOne({ email: credentials.email }).lean()
+        const email = (credentials.email as string).toLowerCase().trim()
+        const user = await User.findOne({ email }).lean()
         if (!user || !user.password) return null
 
         const isValid = await bcryptjs.compare(
@@ -40,6 +41,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           user.password
         )
         if (!isValid) return null
+
+        if (user.isVerified === false) return null
 
         return {
           id: (user._id as { toString(): string }).toString(),
@@ -57,7 +60,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         await connectDB()
         const existing = await User.findOne({ email: user.email })
         if (!existing) {
-          await User.create({ name: user.name, email: user.email, image: user.image })
+          await User.create({ name: user.name ?? '', email: user.email ?? '', image: user.image ?? undefined, isVerified: true })
         }
       }
       return true

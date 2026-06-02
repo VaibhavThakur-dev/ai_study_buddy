@@ -18,7 +18,7 @@ const SubjectSchema = new Schema<ISubjectDocument>(
   { timestamps: { createdAt: true, updatedAt: false } }
 )
 
-const Subject =
-  mongoose.models.Subject ?? mongoose.model<ISubjectDocument>('Subject', SubjectSchema)
+if (process.env.NODE_ENV !== 'production') delete mongoose.models['Subject']
+const Subject = mongoose.model<ISubjectDocument>('Subject', SubjectSchema)
 
 export default Subject

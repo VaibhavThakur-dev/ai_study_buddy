@@ -7,7 +7,6 @@ import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import remarkMath from 'remark-math'
 import rehypeKatex from 'rehype-katex'
-import 'katex/dist/katex.min.css'
 import { ArrowLeft, RefreshCw, Loader2 } from 'lucide-react'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
@@ -20,6 +19,14 @@ import Flashcard from '@/components/flashcard'
 import MCQCard from '@/components/mcq-card'
 import type { IFlashcard, IMCQQuestion } from '@/types'
 import { cn } from '@/lib/utils'
+
+// Ensure display math ($$...$$) is on its own paragraph line so remark-math parses it correctly
+function normalizeMath(content: string): string {
+  return content
+    .replace(/([^\n])\$\$/g, '$1\n\n$$')   // add newline before $$
+    .replace(/\$\$([^\n])/g, '$$\n\n$1')   // add newline after $$
+    .replace(/\n{3,}/g, '\n\n')             // collapse excessive blank lines
+}
 
 interface LessonData {
   content: string
@@ -52,7 +59,7 @@ export default function LessonPage() {
 
     try {
       const res = await fetch(
-        `/api/ai/generate-lesson?subjectId=${params.id}&topic=${encodeURIComponent(topic)}`
+        `/api/ai/generate-lesson?subjectId=${params.id}&topic=${encodeURIComponent(topic)}${isRegenerate ? '&force=true' : ''}`
       )
       const json = (await res.json()) as {
         success: boolean; data: LessonData; cached?: boolean; error?: string
@@ -160,7 +167,7 @@ export default function LessonPage() {
                 [&_td]:border [&_td]:border-border [&_td]:px-3 [&_td]:py-2
                 [&_.math-display]:overflow-x-auto [&_.math-display]:py-2">
                 <ReactMarkdown remarkPlugins={[remarkGfm, remarkMath]} rehypePlugins={[rehypeKatex]}>
-                  {lesson.content}
+                  {normalizeMath(lesson.content)}
                 </ReactMarkdown>
               </div>
             </TabsContent>

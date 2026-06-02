@@ -20,6 +20,7 @@ const OTPSchema = new Schema<IOTPDocument>(
 OTPSchema.index({ expiresAt: 1 }, { expireAfterSeconds: 0 })
 OTPSchema.index({ email: 1 })
 
-const OTP = mongoose.models.OTP ?? mongoose.model<IOTPDocument>('OTP', OTPSchema)
+if (process.env.NODE_ENV !== 'production') delete mongoose.models['OTP']
+const OTP = mongoose.model<IOTPDocument>('OTP', OTPSchema)
 
 export default OTP

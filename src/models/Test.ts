@@ -40,6 +40,7 @@ const TestSchema = new Schema<ITestDocument>(
   { timestamps: false }
 )
 
-const Test = mongoose.models.Test ?? mongoose.model<ITestDocument>('Test', TestSchema)
+if (process.env.NODE_ENV !== 'production') delete mongoose.models['Test']
+const Test = mongoose.model<ITestDocument>('Test', TestSchema)
 
 export default Test

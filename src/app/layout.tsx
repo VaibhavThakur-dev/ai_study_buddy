@@ -2,6 +2,7 @@ import type { Metadata } from "next"
 import { Architects_Daughter } from "next/font/google"
 import { Providers } from "@/components/providers"
 import "./globals.css"
+import "katex/dist/katex.min.css"
 
 const fontSans = Architects_Daughter({
   weight: "400",
@@ -20,7 +21,7 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <body className={`${fontSans.variable} antialiased`}>
         <Providers>{children}</Providers>
       </body>
