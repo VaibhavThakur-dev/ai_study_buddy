@@ -57,6 +57,21 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   ],
   callbacks: {
     ...authConfig.callbacks,
+    async jwt({ token, user, account }) {
+      // Credentials: user.id is already MongoDB _id (set in authorize())
+      if (user?.id && account?.provider === 'credentials') {
+        token.sub = user.id
+      }
+      // Google: look up MongoDB _id by email — Google's user.id is a UUID, not ObjectId
+      if (account?.provider === 'google' && user?.email) {
+        await connectDB()
+        const dbUser = await User.findOne({ email: user.email }).lean()
+        if (dbUser) {
+          token.sub = (dbUser._id as { toString(): string }).toString()
+        }
+      }
+      return token
+    },
     async signIn({ user, account }) {
       if (account?.provider === 'google') {
         await connectDB()
