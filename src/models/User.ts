@@ -22,8 +22,9 @@ const UserSchema = new Schema<IUserDocument>(
   { timestamps: { createdAt: true, updatedAt: false } }
 )
 
-// In development, delete cached model so schema changes apply after hot reload
+// Dev: clear cached model so schema changes apply after hot reload
+// Prod: reuse existing model to avoid OverwriteModelError
 if (process.env.NODE_ENV !== 'production') delete mongoose.models['User']
-const User = mongoose.model<IUserDocument>('User', UserSchema)
+const User = (mongoose.models.User as mongoose.Model<IUserDocument>) ?? mongoose.model<IUserDocument>('User', UserSchema)
 
 export default User

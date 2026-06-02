@@ -21,6 +21,6 @@ const ChatMessageSchema = new Schema<IChatMessageDocument>(
 )
 
 if (process.env.NODE_ENV !== 'production') delete mongoose.models['ChatMessage']
-const ChatMessage = mongoose.model<IChatMessageDocument>('ChatMessage', ChatMessageSchema)
+const ChatMessage = (mongoose.models.ChatMessage as mongoose.Model<IChatMessageDocument>) ?? mongoose.model<IChatMessageDocument>('ChatMessage', ChatMessageSchema)
 
 export default ChatMessage
