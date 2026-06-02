@@ -154,7 +154,7 @@ export default function HomePage() {
           >
             <Badge variant="secondary" className="mb-6 gap-1.5 py-1 px-3">
               <Sparkles className="h-3 w-3" />
-              Powered by Meta Llama 3.1 — Free forever
+              Powered by Thakur Groups
             </Badge>
           </div>
 
