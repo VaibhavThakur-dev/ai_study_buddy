@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
-import Navbar from '@/components/navbar'
+import AppShell from '@/components/app-shell'
 
 interface SubjectData {
   _id: string
@@ -87,95 +87,92 @@ export default function SubjectPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-background">
-        <Navbar />
+      <AppShell>
         <div className="flex items-center justify-center py-24">
           <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
         </div>
-      </div>
+      </AppShell>
     )
   }
 
   if (!subject) {
     return (
-      <div className="min-h-screen bg-background">
-        <Navbar />
-        <div className="text-center py-24 text-muted-foreground">Subject not found.</div>
-      </div>
+      <AppShell>
+        <div className="text-center py-24 text-muted-foreground text-sm">Subject not found.</div>
+      </AppShell>
     )
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      <Navbar />
-      <main className="container mx-auto px-4 py-8 max-w-4xl">
+    <AppShell>
+      <div className="container mx-auto px-4 py-4 sm:py-6 lg:py-8 max-w-4xl">
         <Link href="/dashboard">
-          <Button variant="ghost" size="sm" className="mb-6 -ml-2">
+          <Button variant="ghost" size="sm" className="mb-4 sm:mb-6 -ml-2">
             <ArrowLeft className="h-4 w-4 mr-2" />
-            Back to Dashboard
+            Back
           </Button>
         </Link>
 
-        <div className="mb-6">
-          <div className="flex items-center gap-3 flex-wrap">
-            <h1 className="text-3xl font-bold">{subject.name}</h1>
+        <div className="mb-4 sm:mb-6">
+          <div className="flex items-center gap-2 flex-wrap">
+            <h1 className="text-xl sm:text-2xl font-bold">{subject.name}</h1>
             <Badge variant="secondary">
               {subject.topics.length} {subject.topics.length === 1 ? 'topic' : 'topics'}
             </Badge>
           </div>
-          <p className="text-muted-foreground mt-2 text-sm">
+          <p className="text-muted-foreground mt-1.5 text-sm">
             Select a topic to learn, chat with AI tutor, or take a test.
           </p>
         </div>
 
-        {/* ── Add topics ── */}
-        <div className="mb-6 flex gap-2">
+        {/* Add topics */}
+        <div className="mb-4 sm:mb-6 flex gap-2">
           <Input
-            placeholder="Add topics — separate multiple with commas (e.g. Fractions, Ratios, Percentages)"
+            placeholder="Add topics — separate with commas"
             value={addInput}
             onChange={(e) => setAddInput(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && !adding && void handleAddTopics()}
             disabled={adding}
-            className="flex-1"
+            className="flex-1 text-sm"
           />
-          <Button onClick={() => void handleAddTopics()} disabled={adding || !addInput.trim()}>
+          <Button onClick={() => void handleAddTopics()} disabled={adding || !addInput.trim()} size="sm">
             {adding ? <Loader2 className="h-4 w-4 animate-spin" /> : <Plus className="h-4 w-4" />}
-            <span className="ml-1.5">Add</span>
+            <span className="ml-1 hidden sm:inline">Add</span>
           </Button>
         </div>
 
-        {/* ── Topics list ── */}
+        {/* Topics list */}
         {subject.topics.length === 0 ? (
-          <div className="text-center py-16 text-muted-foreground text-sm">
+          <div className="text-center py-12 text-muted-foreground text-sm">
             No topics yet. Add topics above or re-create the subject with a syllabus.
           </div>
         ) : (
-          <div className="space-y-3">
+          <div className="space-y-2.5">
             {subject.topics.map((topic: string, index: number) => (
               <Card key={index} className="hover:shadow-sm transition-shadow group">
-                <CardContent className="py-4 flex items-center justify-between gap-4">
+                <CardContent className="py-3 sm:py-4 flex items-center justify-between gap-3">
                   <div className="min-w-0">
-                    <p className="font-medium truncate">{topic}</p>
+                    <p className="font-medium text-sm sm:text-base truncate">{topic}</p>
                     <p className="text-xs text-muted-foreground mt-0.5">Topic {index + 1}</p>
                   </div>
 
-                  <div className="flex gap-2 shrink-0 items-center">
+                  <div className="flex gap-1.5 sm:gap-2 shrink-0 items-center">
                     <Link href={`/subjects/${subject._id}/lesson?topic=${encodeURIComponent(topic)}`}>
-                      <Button variant="outline" size="sm">
-                        <BookOpen className="h-3.5 w-3.5 mr-1.5" />
-                        <span className="hidden sm:inline">Learn</span>
+                      <Button variant="outline" size="sm" className="h-8 px-2 sm:px-3">
+                        <BookOpen className="h-3.5 w-3.5" />
+                        <span className="hidden sm:inline ml-1.5">Learn</span>
                       </Button>
                     </Link>
                     <Link href={`/subjects/${subject._id}/chat?topic=${encodeURIComponent(topic)}`}>
-                      <Button variant="outline" size="sm">
-                        <MessageCircle className="h-3.5 w-3.5 mr-1.5" />
-                        <span className="hidden sm:inline">Chat</span>
+                      <Button variant="outline" size="sm" className="h-8 px-2 sm:px-3">
+                        <MessageCircle className="h-3.5 w-3.5" />
+                        <span className="hidden sm:inline ml-1.5">Chat</span>
                       </Button>
                     </Link>
                     <Link href={`/subjects/${subject._id}/test?topic=${encodeURIComponent(topic)}`}>
-                      <Button variant="outline" size="sm">
-                        <ClipboardList className="h-3.5 w-3.5 mr-1.5" />
-                        <span className="hidden sm:inline">Test</span>
+                      <Button variant="outline" size="sm" className="h-8 px-2 sm:px-3">
+                        <ClipboardList className="h-3.5 w-3.5" />
+                        <span className="hidden sm:inline ml-1.5">Test</span>
                       </Button>
                     </Link>
                     <Button
@@ -195,7 +192,7 @@ export default function SubjectPage() {
             ))}
           </div>
         )}
-      </main>
-    </div>
+      </div>
+    </AppShell>
   )
 }

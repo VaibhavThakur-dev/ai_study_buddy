@@ -24,26 +24,27 @@ export default function Navbar() {
   const initial = session?.user?.name?.[0]?.toUpperCase() ?? '?'
 
   return (
-    <nav className="border-b bg-card sticky top-0 z-50">
-      <div className="container mx-auto px-4 h-16 flex items-center justify-between max-w-6xl">
-        <Link href="/dashboard" className="flex items-center gap-2 font-bold text-lg">
-          <BookOpen className="h-5 w-5" />
-          AI Study Buddy
+    <nav className="border-b bg-card sticky top-0 z-40">
+      <div className="container mx-auto px-4 h-14 lg:h-16 flex items-center justify-between max-w-6xl">
+        <Link href="/dashboard" className="flex items-center gap-2 font-bold text-base lg:text-lg">
+          <BookOpen className="h-5 w-5 text-primary" />
+          <span>AI Study Buddy</span>
         </Link>
 
         <div className="flex items-center gap-1">
-          <Link href="/progress">
-            <Button variant="ghost" size="sm" className="hidden sm:flex items-center gap-1.5">
+          {/* Progress — desktop only (bottom nav handles mobile/tablet) */}
+          <Link href="/progress" className="hidden lg:block">
+            <Button variant="ghost" size="sm" className="flex items-center gap-1.5">
               <BarChart2 className="h-4 w-4" />
               Progress
             </Button>
           </Link>
 
-          {/* Dark mode slider toggle */}
+          {/* Theme toggle slider — desktop only */}
           <button
             onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
             aria-label="Toggle dark mode"
-            className="flex items-center gap-1.5 px-1 py-1 rounded-full border border-border bg-muted transition-colors hover:bg-accent"
+            className="hidden lg:flex items-center gap-1.5 px-1 py-1 rounded-full border border-border bg-muted transition-colors hover:bg-accent"
           >
             <Sun className="h-3.5 w-3.5 text-yellow-500 ml-1" />
             <div className="relative w-9 h-5 rounded-full bg-border transition-colors dark:bg-primary">
@@ -52,14 +53,15 @@ export default function Navbar() {
             <Moon className="h-3.5 w-3.5 text-blue-400 mr-1" />
           </button>
 
-          {/* Avatar → Profile page */}
-          <Link href="/profile" className="mx-2">
+          {/* Avatar → Profile — desktop only */}
+          <Link href="/profile" className="hidden lg:block mx-2">
             <Avatar className="h-8 w-8 hover:ring-2 hover:ring-primary/40 transition-all cursor-pointer">
               <AvatarImage src={session?.user?.image ?? undefined} alt={session?.user?.name ?? 'User'} />
               <AvatarFallback className="text-xs">{initial}</AvatarFallback>
             </Avatar>
           </Link>
 
+          {/* Sign out — always visible; icon only on mobile, icon+text on desktop */}
           <AlertDialog>
             <AlertDialogTrigger asChild>
               <Button
@@ -68,10 +70,9 @@ export default function Navbar() {
                 className="text-muted-foreground hover:text-foreground"
               >
                 <LogOut className="h-4 w-4" />
-                <span className="hidden sm:inline ml-1.5">Sign out</span>
+                <span className="hidden lg:inline ml-1.5">Sign out</span>
               </Button>
             </AlertDialogTrigger>
-
             <AlertDialogContent>
               <AlertDialogHeader>
                 <AlertDialogTitle>Sign out?</AlertDialogTitle>

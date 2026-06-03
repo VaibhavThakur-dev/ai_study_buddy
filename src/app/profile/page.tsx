@@ -3,9 +3,8 @@
 import { useEffect, useState } from 'react'
 import { useSession } from 'next-auth/react'
 import { toast } from 'sonner'
-import { ArrowLeft, Loader2, Save, GraduationCap, User, Calendar } from 'lucide-react'
-import Link from 'next/link'
-import Navbar from '@/components/navbar'
+import { Loader2, Save, GraduationCap, User, Calendar } from 'lucide-react'
+import AppShell from '@/components/app-shell'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -35,7 +34,6 @@ export default function ProfilePage() {
     void fetchProfile()
   }, [fetchProfile])
 
-  // Sync local form state when profile loads
   useEffect(() => {
     if (profile) {
       setName(profile.name)
@@ -83,16 +81,9 @@ export default function ProfilePage() {
   const initial = displayName[0]?.toUpperCase() ?? '?'
 
   return (
-    <div className="min-h-screen bg-background">
-      <Navbar />
-      <main className="container mx-auto px-4 py-8 max-w-2xl">
-        <Link href="/dashboard">
-          <Button variant="ghost" size="sm" className="mb-6 -ml-2">
-            <ArrowLeft className="h-4 w-4 mr-2" />Back to Dashboard
-          </Button>
-        </Link>
-
-        <h1 className="text-2xl font-bold mb-6">My Profile</h1>
+    <AppShell>
+      <div className="container mx-auto px-4 py-4 sm:py-6 lg:py-8 max-w-2xl">
+        <h1 className="text-xl sm:text-2xl font-bold mb-4 sm:mb-6">My Profile</h1>
 
         {loading && !profile ? (
           <div className="space-y-4">
@@ -100,17 +91,21 @@ export default function ProfilePage() {
             <Skeleton className="h-64 w-full rounded-xl" />
           </div>
         ) : (
-          <div className="space-y-5">
-            {/* ── User card ── */}
+          <div className="space-y-4 sm:space-y-5">
+            {/* User card */}
             <Card>
-              <CardContent className="pt-6 flex items-center gap-4">
-                <Avatar className="h-16 w-16">
+              <CardContent className="pt-4 sm:pt-6 flex items-center gap-3 sm:gap-4">
+                <Avatar className="h-14 w-14 sm:h-16 sm:w-16 shrink-0">
                   <AvatarImage src={session?.user?.image ?? undefined} />
-                  <AvatarFallback className="text-xl">{initial}</AvatarFallback>
+                  <AvatarFallback className="text-lg sm:text-xl">{initial}</AvatarFallback>
                 </Avatar>
-                <div className="space-y-1">
-                  <p className="font-semibold text-lg">{profile?.name || session?.user?.name}</p>
-                  <p className="text-muted-foreground text-sm">{session?.user?.email}</p>
+                <div className="space-y-1 min-w-0">
+                  <p className="font-semibold text-base sm:text-lg truncate">
+                    {profile?.name || session?.user?.name}
+                  </p>
+                  <p className="text-muted-foreground text-xs sm:text-sm truncate">
+                    {session?.user?.email}
+                  </p>
                   <div className="flex flex-wrap gap-1.5 pt-0.5">
                     {profile?.age && (
                       <Badge variant="outline" className="text-xs">
@@ -122,22 +117,26 @@ export default function ProfilePage() {
                         <GraduationCap className="h-3 w-3 mr-1" />Class {GRADE_LABELS[profile.grade]}
                       </Badge>
                     ) : (
-                      <Badge variant="outline" className="text-xs text-muted-foreground">Class not set</Badge>
+                      <Badge variant="outline" className="text-xs text-muted-foreground">
+                        Class not set
+                      </Badge>
                     )}
                   </div>
                 </div>
               </CardContent>
             </Card>
 
-            {/* ── Edit form ── */}
+            {/* Edit form */}
             <Card>
               <CardHeader className="pb-3">
                 <CardTitle className="text-base flex items-center gap-2">
                   <User className="h-4 w-4" />Edit Profile
                 </CardTitle>
-                <CardDescription>Update your personal details and class.</CardDescription>
+                <CardDescription className="text-xs sm:text-sm">
+                  Update your personal details and class.
+                </CardDescription>
               </CardHeader>
-              <CardContent className="space-y-5">
+              <CardContent className="space-y-4 sm:space-y-5">
                 <div className="space-y-1.5">
                   <Label htmlFor="name">Full Name</Label>
                   <Input id="name" value={name} onChange={(e) => setName(e.target.value)}
@@ -148,18 +147,18 @@ export default function ProfilePage() {
                   <Label htmlFor="age">Age</Label>
                   <Input id="age" type="number" min={5} max={30} value={age}
                     onChange={(e) => setAge(e.target.value)}
-                    placeholder="Your age" className="w-32" />
+                    placeholder="Your age" className="w-28 sm:w-32" />
                 </div>
 
                 <div className="space-y-2">
                   <Label className="flex items-center gap-1.5">
                     <GraduationCap className="h-4 w-4" />Class / Grade
                   </Label>
-                  <div className="grid grid-cols-5 gap-2">
+                  <div className="grid grid-cols-5 gap-1.5 sm:gap-2">
                     {GRADES.map((g) => (
                       <button key={g} onClick={() => setSelectedGrade(g)}
                         className={cn(
-                          'py-2.5 rounded-xl border text-sm font-semibold transition-all',
+                          'py-2 sm:py-2.5 rounded-xl border text-xs sm:text-sm font-semibold transition-all',
                           selectedGrade === g
                             ? 'bg-primary text-primary-foreground border-primary shadow-sm scale-105'
                             : 'bg-card border-border hover:bg-muted hover:border-primary/40'
@@ -179,7 +178,7 @@ export default function ProfilePage() {
             </Card>
           </div>
         )}
-      </main>
-    </div>
+      </div>
+    </AppShell>
   )
 }

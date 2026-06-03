@@ -110,11 +110,11 @@ export default function TestPage() {
   const fmt = (s: number) => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`
   const answered = answers.filter((a) => a !== null).length
 
-  /* ── Setup ── */
+  /* Setup */
   if (phase === 'setup') {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center px-4">
-        <div className="w-full max-w-md space-y-6">
+      <div className="min-h-screen bg-background flex items-center justify-center px-4 pb-nav lg:pb-0">
+        <div className="w-full max-w-md space-y-5 sm:space-y-6">
           <Link href={`/subjects/${params.id}`}>
             <Button variant="ghost" size="sm" className="-ml-2 mb-2">
               <ArrowLeft className="h-4 w-4 mr-2" />
@@ -123,7 +123,7 @@ export default function TestPage() {
           </Link>
 
           <div>
-            <h1 className="text-2xl font-bold">{topic}</h1>
+            <h1 className="text-lg sm:text-xl lg:text-2xl font-bold">{topic}</h1>
             <p className="text-muted-foreground text-sm mt-1">Configure your test</p>
           </div>
 
@@ -134,7 +134,7 @@ export default function TestPage() {
                 <button
                   key={n}
                   onClick={() => setQuestionCount(n)}
-                  className={`py-3 rounded-lg border text-sm font-semibold transition-colors ${
+                  className={`py-2.5 sm:py-3 rounded-lg border text-sm font-semibold transition-colors ${
                     questionCount === n
                       ? 'bg-primary text-primary-foreground border-primary'
                       : 'bg-card border-border hover:bg-muted'
@@ -145,7 +145,7 @@ export default function TestPage() {
               ))}
             </div>
             <p className="text-xs text-muted-foreground">
-              {questionCount} questions · AI generates unique questions, avoids repeats from previous tests
+              {questionCount} questions · AI generates unique questions
             </p>
           </div>
 
@@ -158,10 +158,10 @@ export default function TestPage() {
     )
   }
 
-  /* ── Loading ── */
+  /* Loading */
   if (phase === 'loading') {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center gap-4">
+      <div className="min-h-screen flex flex-col items-center justify-center gap-4 pb-nav lg:pb-0">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
         <p className="text-muted-foreground text-sm">Generating test questions via AI…</p>
         <p className="text-xs text-muted-foreground">This may take 10–20 seconds</p>
@@ -169,10 +169,10 @@ export default function TestPage() {
     )
   }
 
-  /* ── Error ── */
+  /* Error */
   if (phase === 'error') {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center gap-4 px-4">
+      <div className="min-h-screen flex flex-col items-center justify-center gap-4 px-4 pb-nav lg:pb-0">
         <div className="text-center max-w-md space-y-3">
           <p className="text-destructive font-medium">Failed to generate test</p>
           {errorMsg && (
@@ -183,8 +183,7 @@ export default function TestPage() {
         </div>
         <div className="flex gap-3">
           <Button variant="outline" size="sm" onClick={() => void loadTest(questionCount)}>
-            <RefreshCw className="h-4 w-4 mr-2" />
-            Try again
+            <RefreshCw className="h-4 w-4 mr-2" />Try again
           </Button>
           <Link href={`/subjects/${params.id}`}>
             <Button variant="ghost" size="sm">Go back</Button>
@@ -194,22 +193,22 @@ export default function TestPage() {
     )
   }
 
-  /* ── Result ── */
+  /* Result */
   if (phase === 'result' && result) {
     const pct = result.score
     const color = pct >= 80 ? 'text-green-600' : pct >= 50 ? 'text-yellow-600' : 'text-red-600'
     return (
-      <div className="min-h-screen bg-background">
-        <div className="container mx-auto px-4 py-10 max-w-2xl">
+      <div className="min-h-screen bg-background pb-nav lg:pb-0">
+        <div className="container mx-auto px-4 py-6 sm:py-10 max-w-2xl">
           <Card>
             <CardHeader className="text-center pb-2">
-              <CheckCircle2 className="h-12 w-12 mx-auto text-primary mb-2" />
-              <CardTitle className="text-2xl">Test Complete</CardTitle>
+              <CheckCircle2 className="h-10 w-10 sm:h-12 sm:w-12 mx-auto text-primary mb-2" />
+              <CardTitle className="text-xl sm:text-2xl">Test Complete</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-6">
+            <CardContent className="space-y-4 sm:space-y-6">
               <div className="text-center">
-                <p className={`text-6xl font-bold ${color}`}>{pct}%</p>
-                <p className="text-muted-foreground mt-1">
+                <p className={`text-5xl sm:text-6xl font-bold ${color}`}>{pct}%</p>
+                <p className="text-muted-foreground mt-1 text-sm">
                   {result.correct} / {result.total} correct · {fmt(seconds)}
                 </p>
               </div>
@@ -230,7 +229,7 @@ export default function TestPage() {
               </div>
 
               {showAnswers && (
-                <div className="space-y-6 pt-4 border-t">
+                <div className="space-y-4 sm:space-y-6 pt-4 border-t">
                   {questions.map((q, i) => (
                     <MCQCard
                       key={i}
@@ -250,37 +249,37 @@ export default function TestPage() {
     )
   }
 
-  /* ── Taking test ── */
+  /* Taking test */
   const q = questions[current]
 
   return (
-    <div className="min-h-screen bg-background">
-      <div className="container mx-auto px-4 py-6 max-w-2xl">
-        <div className="flex items-center justify-between mb-6">
+    <div className="min-h-screen bg-background pb-nav lg:pb-0">
+      <div className="container mx-auto px-4 py-4 sm:py-6 max-w-2xl">
+        <div className="flex items-center justify-between mb-4 sm:mb-6">
           <Link href={`/subjects/${params.id}`}>
             <Button variant="ghost" size="sm" className="-ml-2">
               <ArrowLeft className="h-4 w-4 mr-2" />
               Quit
             </Button>
           </Link>
-          <div className="flex items-center gap-3">
-            <Badge variant="outline">
+          <div className="flex items-center gap-2 sm:gap-3">
+            <Badge variant="outline" className="text-xs sm:text-sm">
               {answered}/{questions.length} answered
             </Badge>
-            <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
+            <div className="flex items-center gap-1 text-xs sm:text-sm text-muted-foreground">
               <Clock className="h-3.5 w-3.5" />
               {fmt(seconds)}
             </div>
           </div>
         </div>
 
-        <div className="mb-4">
-          <h2 className="font-semibold mb-1">{topic}</h2>
+        <div className="mb-3 sm:mb-4">
+          <h2 className="font-semibold text-sm sm:text-base mb-1 truncate">{topic}</h2>
           <Progress value={(answered / questions.length) * 100} className="h-1.5" />
         </div>
 
-        <Card className="mb-6">
-          <CardContent className="pt-6">
+        <Card className="mb-4 sm:mb-6">
+          <CardContent className="pt-4 sm:pt-6">
             <MCQCard
               question={q}
               index={current}
@@ -293,7 +292,7 @@ export default function TestPage() {
           </CardContent>
         </Card>
 
-        <div className="flex gap-3">
+        <div className="flex gap-2 sm:gap-3">
           <Button
             variant="outline"
             disabled={current === 0}
@@ -320,12 +319,12 @@ export default function TestPage() {
           )}
         </div>
 
-        <div className="mt-4 flex flex-wrap gap-1.5">
+        <div className="mt-3 sm:mt-4 flex flex-wrap gap-1.5">
           {questions.map((_, i) => (
             <button
               key={i}
               onClick={() => setCurrent(i)}
-              className={`w-8 h-8 rounded text-xs font-medium transition-colors ${
+              className={`w-7 h-7 sm:w-8 sm:h-8 rounded text-xs font-medium transition-colors ${
                 i === current
                   ? 'bg-primary text-primary-foreground'
                   : answers[i] !== null

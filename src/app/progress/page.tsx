@@ -1,12 +1,10 @@
 import { auth } from '@/lib/auth'
 import { redirect } from 'next/navigation'
-import Link from 'next/link'
-import { ArrowLeft, Trophy, Target, Flame, BookOpen } from 'lucide-react'
+import { Trophy, Target, Flame, BookOpen } from 'lucide-react'
 import connectDB from '@/lib/mongodb'
 import Test from '@/models/Test'
 import Subject from '@/models/Subject'
-import Navbar from '@/components/navbar'
-import { Button } from '@/components/ui/button'
+import AppShell from '@/components/app-shell'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import ProgressChart from '@/components/progress-chart'
@@ -67,20 +65,11 @@ export default async function ProgressPage() {
   const strong = topicStats.filter((t) => t.avg >= 70).sort((a, b) => b.avg - a.avg).slice(0, 5)
 
   return (
-    <div className="min-h-screen bg-background">
-      <Navbar />
-      <main className="container mx-auto px-4 py-8 max-w-5xl">
-        <div className="flex items-center gap-3 mb-8">
-          <Link href="/dashboard">
-            <Button variant="ghost" size="sm" className="-ml-2">
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              Dashboard
-            </Button>
-          </Link>
-          <h1 className="text-3xl font-bold">Progress</h1>
-        </div>
+    <AppShell>
+      <div className="container mx-auto px-4 py-4 sm:py-6 lg:py-8 max-w-5xl">
+        <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold mb-5 sm:mb-6 lg:mb-8">Progress</h1>
 
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-5 sm:mb-8">
           {[
             { icon: BookOpen, label: 'Tests taken', value: totalTests },
             { icon: Trophy, label: 'Average score', value: `${avg}%` },
@@ -88,28 +77,28 @@ export default async function ProgressPage() {
             { icon: Target, label: 'Topics studied', value: topicStats.length },
           ].map(({ icon: Icon, label, value }) => (
             <Card key={label}>
-              <CardContent className="pt-5 pb-4">
-                <Icon className="h-5 w-5 text-muted-foreground mb-2" />
-                <p className="text-2xl font-bold">{value}</p>
+              <CardContent className="pt-4 pb-3 sm:pt-5 sm:pb-4">
+                <Icon className="h-4 w-4 sm:h-5 sm:w-5 text-muted-foreground mb-1.5 sm:mb-2" />
+                <p className="text-xl sm:text-2xl font-bold">{value}</p>
                 <p className="text-xs text-muted-foreground mt-0.5">{label}</p>
               </CardContent>
             </Card>
           ))}
         </div>
 
-        <Card className="mb-8">
-          <CardHeader>
-            <CardTitle className="text-base">Score over last 20 tests</CardTitle>
+        <Card className="mb-5 sm:mb-8">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm sm:text-base">Score over last 20 tests</CardTitle>
           </CardHeader>
           <CardContent>
             <ProgressChart data={chartData} type="line" />
           </CardContent>
         </Card>
 
-        <div className="grid md:grid-cols-2 gap-6">
+        <div className="grid md:grid-cols-2 gap-4 sm:gap-6">
           <Card>
-            <CardHeader>
-              <CardTitle className="text-base text-red-600 dark:text-red-400">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm sm:text-base text-red-600 dark:text-red-400">
                 Needs improvement (&lt;70%)
               </CardTitle>
             </CardHeader>
@@ -117,14 +106,14 @@ export default async function ProgressPage() {
               {weak.length === 0 ? (
                 <p className="text-sm text-muted-foreground">No weak topics — great work!</p>
               ) : (
-                <div className="space-y-2">
+                <div className="space-y-2.5">
                   {weak.map((t) => (
-                    <div key={t.topic} className="flex items-center justify-between text-sm">
-                      <div>
-                        <p className="font-medium">{t.topic}</p>
+                    <div key={t.topic} className="flex items-center justify-between text-sm gap-2">
+                      <div className="min-w-0">
+                        <p className="font-medium truncate">{t.topic}</p>
                         <p className="text-xs text-muted-foreground">{t.subjectName}</p>
                       </div>
-                      <Badge variant="destructive">{t.avg}%</Badge>
+                      <Badge variant="destructive" className="shrink-0">{t.avg}%</Badge>
                     </div>
                   ))}
                 </div>
@@ -133,8 +122,8 @@ export default async function ProgressPage() {
           </Card>
 
           <Card>
-            <CardHeader>
-              <CardTitle className="text-base text-green-600 dark:text-green-400">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm sm:text-base text-green-600 dark:text-green-400">
                 Strong topics (≥70%)
               </CardTitle>
             </CardHeader>
@@ -142,14 +131,14 @@ export default async function ProgressPage() {
               {strong.length === 0 ? (
                 <p className="text-sm text-muted-foreground">Take more tests to see strong topics.</p>
               ) : (
-                <div className="space-y-2">
+                <div className="space-y-2.5">
                   {strong.map((t) => (
-                    <div key={t.topic} className="flex items-center justify-between text-sm">
-                      <div>
-                        <p className="font-medium">{t.topic}</p>
+                    <div key={t.topic} className="flex items-center justify-between text-sm gap-2">
+                      <div className="min-w-0">
+                        <p className="font-medium truncate">{t.topic}</p>
                         <p className="text-xs text-muted-foreground">{t.subjectName}</p>
                       </div>
-                      <Badge className="bg-green-600 hover:bg-green-700">{t.avg}%</Badge>
+                      <Badge className="bg-green-600 hover:bg-green-700 shrink-0">{t.avg}%</Badge>
                     </div>
                   ))}
                 </div>
@@ -157,7 +146,7 @@ export default async function ProgressPage() {
             </CardContent>
           </Card>
         </div>
-      </main>
-    </div>
+      </div>
+    </AppShell>
   )
 }

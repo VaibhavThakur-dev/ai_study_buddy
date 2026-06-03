@@ -128,8 +128,8 @@ export default function HomePage() {
 
       {/* ── Navbar ── */}
       <nav className="fixed top-0 inset-x-0 z-50 bg-background/80 backdrop-blur-md border-b">
-        <div className="container mx-auto px-4 h-14 flex items-center justify-between max-w-6xl">
-          <Link href="/" className="flex items-center gap-2 font-bold text-lg">
+        <div className="container mx-auto px-2 sm:px-4 h-14 flex items-center justify-between max-w-6xl">
+          <Link href="/" className="flex items-center gap-2 font-bold text-xs sm:text-lg">
             <BookOpen className="h-5 w-5" />
             AI Study Buddy
           </Link>
@@ -169,7 +169,7 @@ export default function HomePage() {
 
           <h1
             className={cn(
-              'text-5xl sm:text-6xl lg:text-7xl font-bold leading-tight tracking-tight mb-6 transition-all duration-600 delay-150',
+              'text-4xl sm:text-6xl lg:text-7xl font-bold leading-tight tracking-tight mb-6 transition-all duration-600 delay-150',
               mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'
             )}
           >
@@ -180,7 +180,7 @@ export default function HomePage() {
 
           <p
             className={cn(
-              'text-lg sm:text-xl text-muted-foreground max-w-2xl mx-auto mb-10 leading-relaxed transition-all duration-600 delay-200',
+              'text-md sm:text-xl text-muted-foreground max-w-2xl mx-auto mb-10 leading-relaxed transition-all duration-600 delay-200',
               mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'
             )}
           >
@@ -195,13 +195,13 @@ export default function HomePage() {
             )}
           >
             <Link href="/register">
-              <Button size="lg" className="gap-2 px-8 h-12 text-base">
+              <Button size="lg" className="gap-2 px-4 sm:px-8 h-12 text-sm sm:text-base">
                 Get Started — It&apos;s Free
                 <ArrowRight className="h-4 w-4" />
               </Button>
             </Link>
             <Link href="/login">
-              <Button variant="outline" size="lg" className="h-12 text-base">
+              <Button variant="outline" size="lg" className="h-12 text-sm sm:text-base">
                 Sign In
               </Button>
             </Link>
@@ -209,7 +209,7 @@ export default function HomePage() {
 
           <div
             className={cn(
-              'flex items-center justify-center gap-6 text-xs text-muted-foreground transition-all duration-600 delay-400',
+              'flex items-center justify-center gap-2 sm:gap-6 text-xs text-muted-foreground transition-all duration-600 delay-400',
               mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
             )}
           >
@@ -229,7 +229,7 @@ export default function HomePage() {
           )}
         >
           <div className="container mx-auto max-w-sm">
-            <div className="grid grid-cols-4 gap-2">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
               {stats.map((s) => (
                 <div key={s.label} className="bg-card border rounded-xl py-4 px-2 text-center shadow-sm">
                   <p className="text-2xl font-bold">{s.value}</p>
@@ -435,8 +435,7 @@ export default function HomePage() {
             <BookOpen className="h-4 w-4" />
             AI Study Buddy
           </div>
-          <p>Built with Next.js · MongoDB · OpenRouter · shadcn/ui</p>
-          <p>© 2025 — Free forever</p>
+          <p>© 2026 — Free forever</p>
         </div>
       </footer>
     </div>

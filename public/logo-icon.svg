@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="512" y2="512" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#3B82F6"/>
+      <stop offset="100%" stop-color="#7C3AED"/>
+    </linearGradient>
+  </defs>
+  <!-- Background rounded square -->
+  <rect width="512" height="512" rx="96" fill="url(#bg)"/>
+  <!-- Open book - left page -->
+  <rect x="108" y="164" width="136" height="192" rx="8" fill="white" opacity="0.95"/>
+  <!-- Open book - right page -->
+  <rect x="268" y="164" width="136" height="192" rx="8" fill="white" opacity="0.80"/>
+  <!-- Spine shadow -->
+  <rect x="240" y="154" width="32" height="212" rx="6" fill="#BFDBFE"/>
+  <!-- Left page lines -->
+  <rect x="128" y="202" width="96" height="10" rx="5" fill="#93C5FD"/>
+  <rect x="128" y="226" width="96" height="10" rx="5" fill="#93C5FD"/>
+  <rect x="128" y="250" width="76" height="10" rx="5" fill="#93C5FD"/>
+  <rect x="128" y="274" width="96" height="10" rx="5" fill="#93C5FD"/>
+  <rect x="128" y="298" width="60" height="10" rx="5" fill="#93C5FD"/>
+  <!-- Right page AI badge -->
+  <circle cx="336" cy="260" r="48" fill="#3B82F6"/>
+  <text x="336" y="273" text-anchor="middle" font-size="36" font-weight="bold" fill="white" font-family="Arial, Helvetica, sans-serif">AI</text>
+  <!-- Stars / sparkle top right -->
+  <circle cx="410" cy="120" r="10" fill="#FCD34D"/>
+  <circle cx="438" cy="96" r="6" fill="#FCD34D" opacity="0.7"/>
+  <circle cx="390" cy="94" r="5" fill="#FCD34D" opacity="0.5"/>
+</svg>

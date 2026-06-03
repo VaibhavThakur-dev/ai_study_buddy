@@ -20,12 +20,11 @@ import MCQCard from '@/components/mcq-card'
 import type { IFlashcard, IMCQQuestion } from '@/types'
 import { cn } from '@/lib/utils'
 
-// Ensure display math ($$...$$) is on its own paragraph line so remark-math parses it correctly
 function normalizeMath(content: string): string {
   return content
-    .replace(/([^\n])\$\$/g, '$1\n\n$$')   // add newline before $$
-    .replace(/\$\$([^\n])/g, '$$\n\n$1')   // add newline after $$
-    .replace(/\n{3,}/g, '\n\n')             // collapse excessive blank lines
+    .replace(/([^\n])\$\$/g, '$1\n\n$$')
+    .replace(/\$\$([^\n])/g, '$$\n\n$1')
+    .replace(/\n{3,}/g, '\n\n')
 }
 
 interface LessonData {
@@ -45,7 +44,6 @@ export default function LessonPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
 
-  // Quick Exam state
   const [examQuestions, setExamQuestions] = useState<IMCQQuestion[]>([])
   const [examAnswers, setExamAnswers] = useState<(number | null)[]>([])
   const [examPhase, setExamPhase] = useState<'idle' | 'loading' | 'taking' | 'result'>('idle')
@@ -120,12 +118,12 @@ export default function LessonPage() {
   }, [topic, params.id])
 
   return (
-    <div className="min-h-screen bg-background">
-      <div className="container mx-auto px-4 py-6 max-w-4xl">
-        <div className="flex items-center justify-between mb-6">
+    <div className="min-h-screen bg-background pb-nav lg:pb-0">
+      <div className="container mx-auto px-4 py-4 sm:py-6 max-w-4xl">
+        <div className="flex items-center justify-between mb-4 sm:mb-6">
           <Link href={`/subjects/${params.id}`}>
             <Button variant="ghost" size="sm" className="-ml-2">
-              <ArrowLeft className="h-4 w-4 mr-2" />Back
+              <ArrowLeft className="h-4 w-4 mr-1.5" />Back
             </Button>
           </Link>
           {!loading && lesson && (
@@ -135,36 +133,38 @@ export default function LessonPage() {
           )}
         </div>
 
-        <div className="mb-6">
-          <h1 className="text-2xl font-bold">{topic}</h1>
+        <div className="mb-4 sm:mb-6">
+          <h1 className="text-lg sm:text-xl lg:text-2xl font-bold">{topic}</h1>
           <Badge variant="secondary" className="mt-1">Lesson</Badge>
         </div>
 
         {loading ? (
-          <div className="space-y-4">
-            <Skeleton className="h-6 w-3/4" /><Skeleton className="h-4 w-full" />
+          <div className="space-y-3 sm:space-y-4">
+            <Skeleton className="h-5 w-3/4" /><Skeleton className="h-4 w-full" />
             <Skeleton className="h-4 w-5/6" /><Skeleton className="h-4 w-full" />
-            <Skeleton className="h-4 w-4/5" /><Skeleton className="h-32 w-full mt-6" />
+            <Skeleton className="h-4 w-4/5" /><Skeleton className="h-28 sm:h-32 w-full mt-4 sm:mt-6" />
           </div>
         ) : error ? (
-          <div className="text-center py-12 space-y-3">
+          <div className="text-center py-10 sm:py-12 space-y-3">
             <p className="text-destructive text-sm">{error}</p>
             <Button onClick={() => void loadLesson()}>Try again</Button>
           </div>
         ) : lesson ? (
           <Tabs defaultValue="lesson">
-            <TabsList className="mb-6">
-              <TabsTrigger value="lesson">Lesson</TabsTrigger>
-              <TabsTrigger value="flashcards">Flashcards ({lesson.flashcards.length})</TabsTrigger>
-              <TabsTrigger value="exam">Quick Exam</TabsTrigger>
+            <TabsList className="mb-4 sm:mb-6 w-full sm:w-auto">
+              <TabsTrigger value="lesson" className="flex-1 sm:flex-none text-xs sm:text-sm">Lesson</TabsTrigger>
+              <TabsTrigger value="flashcards" className="flex-1 sm:flex-none text-xs sm:text-sm">
+                Flashcards ({lesson.flashcards.length})
+              </TabsTrigger>
+              <TabsTrigger value="exam" className="flex-1 sm:flex-none text-xs sm:text-sm">Quick Exam</TabsTrigger>
             </TabsList>
 
-            {/* ── Lesson ── */}
+            {/* Lesson */}
             <TabsContent value="lesson">
-              <div className="prose prose-neutral dark:prose-invert max-w-none text-sm leading-relaxed
+              <div className="prose prose-sm sm:prose-base prose-neutral dark:prose-invert max-w-none
                 [&_table]:w-full [&_table]:border-collapse
-                [&_th]:border [&_th]:border-border [&_th]:px-3 [&_th]:py-2 [&_th]:text-left [&_th]:bg-muted
-                [&_td]:border [&_td]:border-border [&_td]:px-3 [&_td]:py-2
+                [&_th]:border [&_th]:border-border [&_th]:px-2 sm:[&_th]:px-3 [&_th]:py-2 [&_th]:text-left [&_th]:bg-muted
+                [&_td]:border [&_td]:border-border [&_td]:px-2 sm:[&_td]:px-3 [&_td]:py-2
                 [&_.math-display]:overflow-x-auto [&_.math-display]:py-2">
                 <ReactMarkdown remarkPlugins={[remarkGfm, remarkMath]} rehypePlugins={[rehypeKatex]}>
                   {normalizeMath(lesson.content)}
@@ -172,15 +172,15 @@ export default function LessonPage() {
               </div>
             </TabsContent>
 
-            {/* ── Flashcards ── */}
+            {/* Flashcards */}
             <TabsContent value="flashcards">
               <Flashcard flashcards={lesson.flashcards} />
             </TabsContent>
 
-            {/* ── Quick Exam ── */}
+            {/* Quick Exam */}
             <TabsContent value="exam">
               {examPhase === 'idle' && (
-                <div className="text-center py-16 space-y-4">
+                <div className="text-center py-12 sm:py-16 space-y-4">
                   <p className="text-muted-foreground text-sm">
                     Test your understanding with 5 AI-generated questions on this topic.
                   </p>
@@ -189,25 +189,25 @@ export default function LessonPage() {
               )}
 
               {examPhase === 'loading' && (
-                <div className="flex flex-col items-center py-16 gap-3">
+                <div className="flex flex-col items-center py-12 sm:py-16 gap-3">
                   <Loader2 className="h-7 w-7 animate-spin text-primary" />
                   <p className="text-muted-foreground text-sm">Generating questions…</p>
                 </div>
               )}
 
               {examPhase === 'taking' && examQuestions.length > 0 && (
-                <div className="space-y-5">
+                <div className="space-y-4 sm:space-y-5">
                   <div className="flex items-center justify-between">
-                    <p className="text-sm text-muted-foreground">
+                    <p className="text-xs sm:text-sm text-muted-foreground">
                       {examAnswers.filter((a) => a !== null).length}/{examQuestions.length} answered
                     </p>
-                    <div className="flex gap-1.5">
+                    <div className="flex gap-1">
                       {examQuestions.map((_, i) => (
                         <button
                           key={i}
                           onClick={() => setExamCurrent(i)}
                           className={cn(
-                            'w-7 h-7 rounded text-xs font-medium transition-colors',
+                            'w-6 h-6 sm:w-7 sm:h-7 rounded text-xs font-medium transition-colors',
                             i === examCurrent ? 'bg-primary text-primary-foreground' :
                             examAnswers[i] !== null ? 'bg-primary/20 text-primary' : 'bg-muted text-muted-foreground'
                           )}
@@ -217,7 +217,7 @@ export default function LessonPage() {
                   </div>
 
                   <Card>
-                    <CardContent className="pt-6">
+                    <CardContent className="pt-4 sm:pt-6">
                       <MCQCard
                         question={examQuestions[examCurrent]}
                         index={examCurrent}
@@ -230,7 +230,7 @@ export default function LessonPage() {
                     </CardContent>
                   </Card>
 
-                  <div className="flex gap-3">
+                  <div className="flex gap-2 sm:gap-3">
                     <Button variant="outline" disabled={examCurrent === 0}
                       onClick={() => setExamCurrent((c) => c - 1)}>Previous</Button>
                     {examCurrent < examQuestions.length - 1 ? (
@@ -240,18 +240,18 @@ export default function LessonPage() {
                         className="flex-1"
                         onClick={submitExam}
                         disabled={examAnswers.some((a) => a === null)}
-                      >Submit Exam</Button>
+                      >Submit</Button>
                     )}
                   </div>
                 </div>
               )}
 
               {examPhase === 'result' && (
-                <div className="space-y-6">
+                <div className="space-y-4 sm:space-y-6">
                   <Card>
-                    <CardContent className="pt-6 text-center space-y-3">
+                    <CardContent className="pt-4 sm:pt-6 text-center space-y-3">
                       <p className={cn(
-                        'text-5xl font-bold',
+                        'text-4xl sm:text-5xl font-bold',
                         examScore >= 80 ? 'text-green-600' : examScore >= 50 ? 'text-yellow-600' : 'text-red-600'
                       )}>{examScore}%</p>
                       <p className="text-muted-foreground text-sm">
@@ -261,7 +261,7 @@ export default function LessonPage() {
                     </CardContent>
                   </Card>
 
-                  <div className="space-y-4">
+                  <div className="space-y-3 sm:space-y-4">
                     <p className="text-sm font-medium">Review answers:</p>
                     {examQuestions.map((q, i) => (
                       <MCQCard key={i} question={q} index={i}
