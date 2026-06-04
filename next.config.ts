@@ -2,9 +2,6 @@ import withPWA from '@ducanh2912/next-pwa'
 import type { NextConfig } from 'next'
 
 const nextConfig: NextConfig = {
-  experimental: {
-    webpackBuildWorker: false,
-  },
   transpilePackages: [
     'react-markdown',
     'remark-math',
