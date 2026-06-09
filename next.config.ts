@@ -2,6 +2,10 @@ import withPWA from '@ducanh2912/next-pwa'
 import type { NextConfig } from 'next'
 
 const nextConfig: NextConfig = {
+  // Suppress Next.js 16 Turbopack error when PWA plugin adds a webpack config.
+  // On Vercel (Turbopack), webpack plugin is silently skipped; sw.js is served
+  // from the pre-committed public/ file. Locally we still build with --webpack.
+  turbopack: {},
   transpilePackages: [
     'react-markdown',
     'remark-math',
